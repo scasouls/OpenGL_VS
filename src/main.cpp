@@ -205,8 +205,8 @@ int main() {
     };
 
     glm::vec3 Lights[3] = {
-        glm::vec3(1.0f, 1.0f,1.0f),
-        glm::vec3(1.0f, 1.0f,1.0f),
+        glm::vec3(0.2f, 0.2f,0.2f),
+        glm::vec3(0.8f, 0.8f,0.8f),
         glm::vec3(1.0f, 1.0f,1.0f),
     };
 
@@ -240,9 +240,12 @@ int main() {
     //4.����
     unsigned int diffuseMap = loadTexture("pngs/container2.png");
     unsigned int specularMap = loadTexture("pngs/container2_specular.png");
+    unsigned int emissionMap = loadTexture("pngs/matrix.jpg");
 
+    FirstShader.use();
     FirstShader.setInt("material.diffuse", 0);
     FirstShader.setInt("material.specular", 1);
+    FirstShader.setInt("material.emission", 2);
 
     //5.����
     unsigned int lightVAO;
@@ -276,15 +279,12 @@ int main() {
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
 
-        FirstShader.setMat4("model", model);
-
         view = camera.GetViewMatrix();
 
         projection = glm::perspective(glm::radians(45.0f), (float)Width / (float)Height, 0.1f, 100.0f);
 
         glm::vec3 lightColor = glm::vec3(1.0f);
 
-        //������ɫ��
         FirstShader.use();
 
         FirstShader.setMat4("view", view);
@@ -300,11 +300,12 @@ int main() {
 
         FirstShader.setVec3("lightPos", lightPos);
 
-
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, specularMap);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, emissionMap);
 
         glBindVertexArray(VAO);
 
