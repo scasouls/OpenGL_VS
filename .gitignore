@@ -1,0 +1,47 @@
+# =========================
+# 通用
+# =========================
+*.log
+*.cache
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# =========================
+# CMake 构建目录
+# =========================
+build/
+out/
+[Cc]MakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# =========================
+# Visual Studio (VS2022)
+# =========================
+.vs/
+x64/
+x86/
+Debug/
+Release/
+GeneratedFiles/
+*.VC.db
+*.VC.opendb
+
+# =========================
+# Visual Studio Code (VSCode)
+# =========================
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+
+# =========================
+# Vcpkg
+# =========================
+# vcpkg 本身最好独立管理，不要和项目混在一起
+vcpkg_installed/
