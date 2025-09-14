@@ -205,11 +205,19 @@ int main() {
         1, 2, 3 
     };
 
+    //光源属性
     glm::vec3 Lights[3] = {
         glm::vec3(0.2f, 0.2f,0.2f),
-        glm::vec3(0.8f, 0.8f,0.8f),
+        glm::vec3(0.6f, 0.8f,0.93f),
         glm::vec3(1.0f, 1.0f,1.0f),
     };
+
+    glm::vec3 pointLightPositions[] = {
+    glm::vec3( 0.7f,  0.2f,  2.0f),
+    glm::vec3( 2.3f, -3.3f, -4.0f),
+    glm::vec3(-4.0f,  2.0f, -12.0f),
+    glm::vec3( 0.0f,  0.0f, -3.0f)
+};
 
     //ID
     unsigned int VBO, VAO, EBO;
@@ -265,7 +273,7 @@ int main() {
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glClearColor(0.7, 0.8, 0.9, 1.0);
+        glClearColor(0.4, 0.7, 0.99, 0.7);
         glClear(GL_COLOR_BUFFER_BIT);
 
 
@@ -278,7 +286,7 @@ int main() {
 
         projection = glm::perspective(glm::radians(45.0f), (float)Width / (float)Height, 0.1f, 100.0f);
 
-        glm::vec3 lightColor = glm::vec3(1.0f);
+        glm::vec3 lightColor = Lights[1];
 
         FirstShader.use();
 
@@ -288,19 +296,38 @@ int main() {
         FirstShader.setVec3("eyePos", camera.Position);
 
         FirstShader.setFloat("material.shininess", 32.0f);
+        //设置定向光属性
+        FirstShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+        FirstShader.setVec3("dirLight.ambient",  Lights[0]);
+        FirstShader.setVec3("dirLight.diffuse",  Lights[1]);
+        FirstShader.setVec3("dirLight.specular", Lights[2]);
 
-        FirstShader.setVec3("light.position",  camera.Position);
-        FirstShader.setVec3("light.direction", camera.Front);
-        FirstShader.setFloat("light.cutOff",   glm::cos(glm::radians(12.5f)));
-        FirstShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
+        //设置点光源属性
+        for(int i = 0; i < 4; i++)
+        {
+            string number = to_string(i);
+            FirstShader.setVec3("pointLights[" + number + "].position", pointLightPositions[i]);
+            FirstShader.setVec3("pointLights[" + number + "].ambient",  Lights[0]);
+            FirstShader.setVec3("pointLights[" + number + "].diffuse",  Lights[1]);
+            FirstShader.setVec3("pointLights[" + number + "].specular", Lights[2]);
+            FirstShader.setFloat("pointLights[" + number + "].constant",  1.0f);
+            FirstShader.setFloat("pointLights[" + number + "].linear",    0.09f);
+            FirstShader.setFloat("pointLights[" + number + "].quadratic", 0.032f);
+        }
 
-        FirstShader.setVec3("light.ambient", Lights[0]);
-        FirstShader.setVec3("light.diffuse", Lights[1]);
-        FirstShader.setVec3("light.specular", Lights[2]);
+        //设置聚光灯属性
+        FirstShader.setVec3("spotLight.position",  camera.Position);
+        FirstShader.setVec3("spotLight.direction", camera.Front);
+        FirstShader.setFloat("spotLight.cutOff",   glm::cos(glm::radians(12.5f)));
+        FirstShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
 
-        FirstShader.setFloat("light.constant",  1.0f);
-        FirstShader.setFloat("light.linear",    0.09f);
-        FirstShader.setFloat("light.quadratic", 0.032f);
+        FirstShader.setVec3("spotLight.ambient", Lights[0]);
+        FirstShader.setVec3("spotLight.diffuse", Lights[1]);
+        FirstShader.setVec3("spotLight.specular", Lights[2]);
+
+        FirstShader.setFloat("spotLight.constant",  1.0f);
+        FirstShader.setFloat("spotLight.linear",    0.09f);
+        FirstShader.setFloat("spotLight.quadratic", 0.032f);
 
         //绑定纹理
         glActiveTexture(GL_TEXTURE0);
@@ -340,9 +367,16 @@ int main() {
         LightShader.setMat4("model", model);
         LightShader.setMat4("view", view);
         LightShader.setMat4("projection", projection);
-
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //绘制多个点光源
+        for(int i = 0; i < 4; i++)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, pointLightPositions[i]);
+            model = glm::scale(model, glm::vec3(0.2f));
+            LightShader.setMat4("model", model);
+            glBindVertexArray(lightVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
