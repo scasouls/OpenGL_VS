@@ -9,8 +9,8 @@
 
 using namespace std;
 
-const unsigned int Width = 800;
-const unsigned int Height = 600;
+const unsigned int Width = 1200;
+const unsigned int Height = 800;
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = Width / 2.0f;
@@ -20,13 +20,13 @@ bool firstMouse = true;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
-//�ض����ӿڴ�С
+//调整窗口大小
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
-//�������
+//鼠标输入处理
 void processInput(GLFWwindow* window)
 {
     //����ESCʱ�˳�����
@@ -43,6 +43,7 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
+//鼠标移动
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
@@ -63,6 +64,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
     camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
+//加载纹理
 unsigned int loadTexture(char const * path)
 {
     unsigned int textureID;
@@ -104,6 +106,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 int main() {
 
     glfwInit();
@@ -132,14 +136,13 @@ int main() {
         return -1;
     }
 
+    //加载着色器
+    Shader FirstShader("../../../shaders/First_Vertex_Shader.vert", "../../../shaders/First_Fragment_Shader.frag");
+    Shader LightShader("../../../shaders/First_Vertex_Shader.vert", "../../../shaders/Light_Fragment_Shader.frag");
 
-    //ѡ����ɫ��������
-    Shader FirstShader("shaders/First_Vertex_Shader.vert", "shaders/First_Fragment_Shader.frag");
-    Shader LightShader("shaders/First_Vertex_Shader.vert", "shaders/Light_Fragment_Shader.frag");
+    glViewport(0, 0, Width, Height);
 
-    glViewport(0, 0, 800, 600);
-
-    //����
+    //模型数据
     float vertices[] = {
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
      0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
@@ -197,7 +200,6 @@ int main() {
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
-    //����
     unsigned int indices[] = { 
         0, 1, 3,
         1, 2, 3 
@@ -212,12 +214,11 @@ int main() {
     //ID
     unsigned int VBO, VAO, EBO;
 
-    //����
+
     glGenVertexArrays(1, &VAO);
     //glGenBuffers(1, &EBO);
     glGenBuffers(1, &VBO);
 
-    //��
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -226,7 +227,6 @@ int main() {
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(vertices), indices, GL_STATIC_DRAW);
 
-    //��ȡ����
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
@@ -236,7 +236,7 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    //4.����
+    //加载纹理
     unsigned int diffuseMap = loadTexture("pngs/container2.png");
     unsigned int specularMap = loadTexture("pngs/container2_specular.png");
     unsigned int emissionMap = loadTexture("pngs/matrix.jpg");
@@ -245,8 +245,6 @@ int main() {
     FirstShader.setInt("material.diffuse", 0);
     FirstShader.setInt("material.specular", 1);
 
-
-    //5.����
     unsigned int lightVAO;
     glGenVertexArrays(1, &lightVAO);
     glBindVertexArray(lightVAO);
@@ -255,10 +253,9 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glm::vec3 lightPos(1.2f, 1.0f, -2.0f);
-    //6.ѭ����Ⱦ
     while (!glfwWindowShouldClose(window))
     {
+        //每帧时间
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -268,12 +265,11 @@ int main() {
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //�������õı�����ɫ
         glClearColor(0.7, 0.8, 0.9, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
 
-        //MVP����
+        //MVP
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
@@ -286,24 +282,29 @@ int main() {
 
         FirstShader.use();
 
+        //设置uniform变量
         FirstShader.setMat4("view", view);
         FirstShader.setMat4("projection", projection);
         FirstShader.setVec3("eyePos", camera.Position);
 
         FirstShader.setFloat("material.shininess", 32.0f);
 
-        FirstShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
+        FirstShader.setVec3("light.position", lightPos);
         FirstShader.setVec3("light.ambient", Lights[0]);
         FirstShader.setVec3("light.diffuse", Lights[1]);
         FirstShader.setVec3("light.specular", Lights[2]);
 
-        FirstShader.setVec3("lightPos", lightPos);
+        FirstShader.setFloat("light.constant",  1.0f);
+        FirstShader.setFloat("light.linear",    0.09f);
+        FirstShader.setFloat("light.quadratic", 0.032f);
 
+        //绑定纹理
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, specularMap);
 
+        //绘制多个立方体
         for(unsigned int i = 0; i < 10; i++)
         {
             model = glm::mat4(1.0f);
@@ -336,11 +337,11 @@ int main() {
         LightShader.setMat4("view", view);
         LightShader.setMat4("projection", projection);
 
-        // glBindVertexArray(lightVAO);
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        glfwSwapBuffers(window);//��������
-        glfwPollEvents();//���Ķ�
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
 
     
