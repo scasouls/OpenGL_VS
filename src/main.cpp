@@ -289,7 +289,11 @@ int main() {
 
         FirstShader.setFloat("material.shininess", 32.0f);
 
-        FirstShader.setVec3("light.position", lightPos);
+        FirstShader.setVec3("light.position",  camera.Position);
+        FirstShader.setVec3("light.direction", camera.Front);
+        FirstShader.setFloat("light.cutOff",   glm::cos(glm::radians(12.5f)));
+        FirstShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
+
         FirstShader.setVec3("light.ambient", Lights[0]);
         FirstShader.setVec3("light.diffuse", Lights[1]);
         FirstShader.setVec3("light.specular", Lights[2]);
