@@ -27,3 +27,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glad::glad)
 # GLM (header-only)
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
+
+# Assimp
+find_package(assimp REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE assimp::assimp)
