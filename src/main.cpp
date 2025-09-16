@@ -232,8 +232,8 @@ int main() {
     glBindVertexArray(0);
 
     // load textures
-    unsigned int cubeTexture  = loadTexture("../../../pngs/Wood.png");
-    unsigned int floorTexture = loadTexture("../../../pngs/Tone.png");
+    unsigned int cubeTexture  = loadTexture("../../../pngs/Tone.png");
+    unsigned int floorTexture = loadTexture("../../../pngs/Wood.png");
 
     FirstShader.use();
     FirstShader.setInt("texture1", 0);
