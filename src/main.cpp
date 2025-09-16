@@ -140,7 +140,10 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-     Shader FirstShader("../../../shaders/First_Vertex_Shader.vert", "../../../shaders/First_Fragment_Shader.frag");
+    glEnable(GL_STENCIL_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    Shader FirstShader("../../../shaders/First_Vertex_Shader.vert", "../../../shaders/First_Fragment_Shader.frag");
         
     float cubeVertices[] = {
         // positions          // texture Coords
@@ -204,6 +207,13 @@ int main() {
         glm::vec3(1.0f, 1.0f, 1.0f)
     };
 
+    vector<glm::vec3> vegetation;
+    vegetation.push_back(glm::vec3(-1.5f,  0.0f, -0.48f));
+    vegetation.push_back(glm::vec3( 1.5f,  0.0f,  0.51f));
+    vegetation.push_back(glm::vec3( 0.0f,  0.0f,  0.7f));
+    vegetation.push_back(glm::vec3(-0.3f,  0.0f, -2.3f));
+    vegetation.push_back(glm::vec3( 0.5f,  0.0f, -0.6f));
+
     stbi_set_flip_vertically_on_load(true);
 
     // cube VAO
@@ -230,10 +240,23 @@ int main() {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glBindVertexArray(0);
+    //Grass VAO
+    unsigned int grassVAO, grassVBO;
+    glGenVertexArrays(1, &grassVAO);
+    glGenBuffers(1, &grassVBO);
+    glBindVertexArray(grassVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, grassVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);   
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glBindVertexArray(0);
 
     // load textures
     unsigned int cubeTexture  = loadTexture("../../../pngs/Tone.png");
     unsigned int floorTexture = loadTexture("../../../pngs/Wood.png");
+    unsigned int grassTexture = loadTexture("../../../pngs/grass.png");
 
     FirstShader.use();
     FirstShader.setInt("texture1", 0);
@@ -273,11 +296,11 @@ int main() {
         glBindVertexArray(cubeVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, cubeTexture); 	
-        model = glm::translate(model, glm::vec3(-0.5f, 0.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(-1.5f, 0.0f, -1.5f));
         FirstShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(1.0f, 0.0f, -4.0f));
+        model = glm::translate(model, glm::vec3(1.5f, 0.0f, -0.5f));
         FirstShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         // floor
@@ -287,7 +310,16 @@ int main() {
         FirstShader.setMat4("model", glm::mat4(1.0f));
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
-
+        //grass
+        glBindVertexArray(grassVAO);
+        glBindTexture(GL_TEXTURE_2D, grassTexture);  
+        for(unsigned int i = 0; i < vegetation.size(); i++) 
+        {
+          model = glm::mat4(1.0f);
+          model = glm::translate(model, vegetation[i]);               
+          FirstShader.setMat4("model", model);
+          glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
