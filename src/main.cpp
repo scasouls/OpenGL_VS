@@ -143,6 +143,9 @@ int main() {
     glEnable(GL_STENCIL_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     Shader FirstShader("../../../shaders/First_Vertex_Shader.vert", "../../../shaders/First_Fragment_Shader.frag");
         
     float cubeVertices[] = {
@@ -256,7 +259,7 @@ int main() {
     // load textures
     unsigned int cubeTexture  = loadTexture("../../../pngs/Tone.png");
     unsigned int floorTexture = loadTexture("../../../pngs/Wood.png");
-    unsigned int grassTexture = loadTexture("../../../pngs/grass.png");
+    unsigned int grassTexture = loadTexture("../../../pngs/window.png");
 
     FirstShader.use();
     FirstShader.setInt("texture1", 0);
@@ -313,12 +316,19 @@ int main() {
         //grass
         glBindVertexArray(grassVAO);
         glBindTexture(GL_TEXTURE_2D, grassTexture);  
-        for(unsigned int i = 0; i < vegetation.size(); i++) 
+
+        std::map<float, glm::vec3,std::greater<float>> sorted;
+        for(unsigned i = 0; i< vegetation.size(); i++){
+            float distance = glm::length(camera.Position - vegetation[i]);
+            sorted[distance] = vegetation[i];
+        }
+
+        for(const auto& pair : sorted)
         {
-          model = glm::mat4(1.0f);
-          model = glm::translate(model, vegetation[i]);               
-          FirstShader.setMat4("model", model);
-          glDrawArrays(GL_TRIANGLES, 0, 6);
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, pair.second);
+            FirstShader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
         }
 
         glfwSwapBuffers(window);
