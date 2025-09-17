@@ -137,6 +137,7 @@ int main() {
         return -1;
     }
 
+    //各种测试
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
@@ -146,62 +147,67 @@ int main() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+
     Shader FirstShader("../../../shaders/First_Vertex_Shader.vert", "../../../shaders/First_Fragment_Shader.frag");
         
     float cubeVertices[] = {
-        // positions          // texture Coords
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        // Back face
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // Bottom-left
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // bottom-right         
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+        // Front face
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, // top-left
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+        // Left face
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-left
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
+        // Right face
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right         
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left     
+        // Bottom face
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, // top-left
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
+        // Top face
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right     
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f  // bottom-left        
     };
 
     float planeVertices[] = {
         // positions     
-         5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+        5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
         -5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
 
-         5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+        5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+        5.0f, -0.5f, -5.0f,  2.0f, 2.0f,
         -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-         5.0f, -0.5f, -5.0f,  2.0f, 2.0f								
+						
     };
 
     glm::vec3 lightColor[3]{
